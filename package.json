@@ -1,0 +1,17 @@
+{
+  "name": "ewfracwar",
+  "version": "1.0.0",
+  "description": "Web app for fractions wargame for Eternal World tes3mp server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vesrand",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0",
+    "undici": "^6.21.0"
+  }
+}

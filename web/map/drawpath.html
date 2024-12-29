@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			.timelabel{
+				display: none;
+				position: absolute;  
+				background-color: white; 
+				z-index: 9999999;
+			}
+			.settingsblock {
+				display: inline-block;
+				margin: 5px;
+			}
+			.mainframe {
+				border:1px solid black; 
+				background-color: white;
+				z-index: 10; 
+				width:650px;
+				position: fixed;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="anchor"><div>
+		<div id="settings" class="settingsblock mainframe">
+			<form>
+				<select id="ddlFraction" class="settingsblock">
+					<option value="1" selected="selected">Империя</option>
+					<option value="2">Хлаалу</option>
+					<option value="3">Редоран</option>
+					<option value="4">Телванни</option>
+					<option value="5">Храм</option>
+					<option value="6">Шестой Дом</option>
+				</select>
+				<br>
+				<div class="settingsblock">Дата начала</div><input id="datestart" type="datetime-local" class="settingsblock">
+				<div class="settingsblock">Дата завершения</div><input id="dateend" type="datetime-local" class="settingsblock">
+				<div class="settingsblock">Сначала установите фракцию и даты начала и завершения движения отряда по МСК</div>
+				<div class="settingsblock">ЛКМ по карте для простановки точек маршрута, Enter для завершения</div>
+			</form>
+		</div>
+		<div id="result" class="settingsblock mainframe" style="left: 665px;">Итоговый путь:<br></div>
+		<canvas id="mapCanvas" style="border:1px solid black; background-image: url('mapmorrowind.jpg'); background-size: cover; position: relative;" width='6600px' height='7600px'/>
+	</body>
+	
+	<script>			
+		var mapCanvas = document.getElementById("mapCanvas");
+		mapCanvas.onclick = mapClickCanvas;
+		var context = mapCanvas.getContext('2d');
+
+		var lastX = null;
+		var lastY = null;
+		var totalPath = 0;
+		var fractionName = "";
+		var ddlFraction = document.getElementById("ddlFraction");
+		var setLineColor = "";
+		ddlFraction.onchange = onChangeFraction;
+		onChangeFraction();
+		
+		document.body.addEventListener('keydown', event => {
+			if (event.code == 'Enter' && lastX!=null && lastY!=null) {
+				setEndTime(event);
+				let resultBlock = document.getElementById("result");
+				let lengthPath = Math.round(totalPath);
+				let estimatedSpeed = (totalPath/getTimeDifferenceSec()).toFixed(1);
+				resultBlock.insertAdjacentHTML('beforeend', fractionName + ' ' + lengthPath + 'м. Расчетная скорость отряда: ' + estimatedSpeed + 'м/с<br>');
+				lastX = null;
+				lastY = null;
+			}
+		});
+		
+		function getTimeDifferenceSec(){			
+			let startString = document.getElementById('datestart');
+			let endString = document.getElementById('dateend');
+			let duration = 1;
+			
+			let startDateMs = Date.parse(startString.value);
+			let endDateMs = Date.parse(endString.value);
+			duration = Math.round((endDateMs - startDateMs)/1000);
+			
+			return duration;
+		}
+		
+		function mapFinishInput(e){			
+			setEndTime(e);
+			let resultBlock = document.getElementById("result");
+			resultBlock.insertAdjacentHTML('beforeend', fractionName + ' ' + totalPath + '<br>');
+			lastX = null;
+			lastY = null;
+		}
+
+		function mapClickCanvas(e){
+			const rect = mapCanvas.getBoundingClientRect();
+			let x = e.clientX - rect.x;
+			let y = e.clientY - rect.y;
+
+			if (lastX!=null && lastY!=null){
+				drawLine(context, setLineColor, 4 /*line width*/, lastX, lastY, x, y);
+				let a = (lastX - x) * (lastX - x);
+				let b = (lastY - y) * (lastY - y);
+				totalPath = totalPath + Math.sqrt(a + b);
+			}else{
+				setStartTime(e);
+				totalPath = 0;
+			}
+			lastX = x;
+			lastY = y;
+		}
+
+		function drawLine(context, lineColor, lineWidth, x1, y1, x2, y2){
+			context.resetTransform();
+			context.beginPath();
+			context.moveTo(x1, y1);
+			context.lineTo(x2, y2);
+			context.lineWidth = lineWidth;
+			context.strokeStyle = lineColor;
+			context.stroke();
+		}
+		
+		function setStartTime(e){
+			let anchor = document.getElementById("anchor");
+			let startLabel = document.createElement('div');
+			let startTime = document.getElementById('datestart');
+
+			startLabel.className = "timelabel";
+			startLabel.style.position = 'absolute';
+			startLabel.style.left = e.pageX + "px";
+			startLabel.style.top = e.pageY + "px"; 
+			startLabel.style.display = 'inline-block'; 
+			startLabel.innerText = "0м " + fractionName + " " + startTime.value;
+
+			anchor.appendChild(startLabel);   
+		}
+		
+		function setEndTime(e){
+			let anchor = document.getElementById("anchor");
+			let endLabel = document.createElement('div');
+			let endTime = document.getElementById('dateend');
+			let rect = mapCanvas.getBoundingClientRect();
+
+			endLabel.className = "timelabel";
+			endLabel.style.position = 'absolute';
+			endLabel.style.left = lastX + "px";
+			endLabel.style.top = lastY + "px"; 
+			endLabel.style.display = 'inline-block'; 
+			let lengthPath = Math.round(totalPath);
+			endLabel.innerText = lengthPath + "м " + fractionName + " " + endTime.value;
+
+			anchor.appendChild(endLabel);   
+		}
+		
+		function onChangeFraction(){
+			fractionName = ddlFraction.options[ddlFraction.selectedIndex].text;
+			lastX = null;
+			lastY = null;
+			switch (fractionName) {
+				case "Империя":
+					setLineColor = "blue";
+					break;
+				case "Хлаалу":
+					setLineColor = "yellow";
+					break;
+				case "Редоран":
+					setLineColor = "red";
+					break;
+				case "Телванни":
+					setLineColor = "chocolate";
+					break;
+				case "Храм":
+					setLineColor = "cyan";
+					break;
+				case "Шестой Дом":
+					setLineColor = "darkred";
+					break;
+			}
+		}
+	</script>
+</html>
