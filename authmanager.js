@@ -7,9 +7,11 @@ let activeSessionsMap = new Map();
 
 
 async function identifyByCookie(cookie) {
+    console.log(cookie);
+    console.log(activeSessionsMap);
     let username = undefined;
 
-    if (cookie && cookie != "") {
+    if (cookie && cookie != "" && cookie.match(/^\w+$/)) {
         //проверка в активных сессиях
         if (activeSessionsMap.has(cookie)) {
             username = activeSessionsMap.get(cookie);
@@ -39,7 +41,7 @@ async function authByCode(code) {
                     client_secret: config.clientSecret,
                     code,
                     grant_type: 'authorization_code',
-                    redirect_uri: `http://${config.host}:${config.port}`,
+                    redirect_uri: `${config.protocol}://${config.host}:${config.port}`,
                     scope: 'identify',
                 }).toString(),
                 headers: {
@@ -70,5 +72,17 @@ async function authByCode(code) {
     }
 }
 
+async function logoff(code) {
+    if (code && code != "" && code.match(/^\w+$/)) {
+        //удаление из сессий
+        if (activeSessionsMap.has(code)) {
+            activeSessionsMap.delete(code);
+        }
+        //удаление из бд
+        await dbManager.clearCode(code);
+    }
+}
+
 exports.identifyByCookie = identifyByCookie;
 exports.authByCode = authByCode;
+exports.logoff = logoff;

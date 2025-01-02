@@ -4,3 +4,5 @@ config.json
 /config.json
 local/
 db/
+/web/test.html
+/web/config.js

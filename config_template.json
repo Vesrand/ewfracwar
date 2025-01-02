@@ -1,0 +1,12 @@
+{
+    "clientId": "",
+    "clientSecret": "",
+    "protocol": "https",
+    "host": "localhost",
+    "port": "7236",
+    "dbname": "",
+    "dbport": "",
+    "dbpass": "",
+    "dbuser": "",
+    "cookieSecret": ""
+}

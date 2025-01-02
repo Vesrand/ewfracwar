@@ -36,5 +36,14 @@ async function setAuthData(code, username, access_token, refresh_token){
     }
 }
 
+async function clearCode(code) {
+    try{
+        let result = await dbpool.query(`UPDATE auth SET authcode=? WHERE authcode=?`,['',code]);
+    }catch(e){
+        console.log(`${new Date()}: setAuthData ERROR: ${e}`);
+    }
+}
+
 exports.getAuthDataByCode = getAuthDataByCode;
 exports.setAuthData = setAuthData;
+exports.clearCode = clearCode;
