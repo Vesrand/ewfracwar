@@ -4,6 +4,7 @@
     "protocol": "https",
     "host": "localhost",
     "port": "7236",
+    "dbhost": "localhost",
     "dbname": "",
     "dbport": "",
     "dbpass": "",

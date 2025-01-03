@@ -7,8 +7,6 @@ let activeSessionsMap = new Map();
 
 
 async function identifyByCookie(cookie) {
-    console.log(cookie);
-    console.log(activeSessionsMap);
     let username = undefined;
 
     if (cookie && cookie != "" && cookie.match(/^\w+$/)) {

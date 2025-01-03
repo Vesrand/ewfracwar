@@ -3,7 +3,7 @@ const mysql = require("mysql2");
 
 const dbpool = mysql.createPool({
     connectionLimit: 50,
-    host: config.host,
+    host: config.dbhost,
     port: config.dbport,
     user: config.dbuser,
     database: config.dbname,
